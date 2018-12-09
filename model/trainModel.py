@@ -10,30 +10,16 @@ from keras.layers import Dense,Dropout
 from keras.optimizers import SGD
 
 from game.environment import TicTacToeEnvironment
-import game.opponent as opp
-import model.createModel as cm
+from model.createModel import ModelCreator
+import game.hardCodeOpponent as opp
 import model.moveSelector as ms
 
+#modelCreator = ModelCreator()
+
 def train(model,mode,print_progress=False):
-    """Function trains the Evaluator (model) by playing a game against an opponent 
-    playing random moves, and updates the weights of the model after the game
-    
-    Note that the model weights are updated using SGD with a batch size of 1
-
-    Args:
-    model: The Evaluator function being trained
-
-    Returns:
-    model: The model updated using SGD
-    y: The corrected scores
-
-    """ 
-    # start the game
-    if print_progress==True:
-        print("___________________________________________________________________")
-        print("Starting a new game")
     game=TicTacToeEnvironment()
     game.toss()
+
     scores_list=[]
     corrected_scores_list=[]
     new_board_states_list=[]
@@ -44,21 +30,15 @@ def train(model,mode,print_progress=False):
             selected_move,new_board_state,score=ms.move_selector(model,game.board,game.turn_monitor)
             scores_list.append(score[0][0])
             new_board_states_list.append(new_board_state)
+
             # Make the next move
             game_status,board=game.move(game.turn_monitor,selected_move)
-            if print_progress==True:
-                print("Program's Move")
-                print(board)
-                print("\n")
+
         elif game.game_status()=="In Progress" and game.turn_monitor==0:
             selected_move=opp.opponent_move_selector(game.board,game.turn_monitor,mode=mode)
         
             # Make the next move
             game_status,board=game.move(game.turn_monitor,selected_move)
-            if print_progress==True:
-                print("Opponent's Move")
-                print(board)
-                print("\n")
         else:
             break
 
@@ -76,10 +56,6 @@ def train(model,mode,print_progress=False):
     if game_status=="Drawn":
         corrected_scores_list=shift(scores_list,-1,cval=0.0)
         result="Drawn"
-    if print_progress==True:
-        print("Program has ",result)
-        print("\n Correcting the Scores and Updating the model weights:")
-        print("___________________________________________________________________\n")
         
     x=new_board_states_list
     y=corrected_scores_list

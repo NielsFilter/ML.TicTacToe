@@ -3,7 +3,7 @@ from keras.models import load_model
 from game.environment import TicTacToeEnvironment
 import model.moveSelector as ms
 
-model = load_model('myModel.h5')
+#model = load_model('myModel.h5')
 
 # Play against program
 model = load_model('myModel.h5')
